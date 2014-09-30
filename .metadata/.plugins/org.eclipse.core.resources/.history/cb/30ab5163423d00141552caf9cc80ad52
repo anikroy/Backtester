@@ -1,0 +1,31 @@
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+
+
+public class Backtester {
+
+	public static void main(String[] args) {
+		Screen open=new Screen();
+		
+		JFrame newFrame=new JFrame();
+		/*
+		open.setVisible(true);
+        open.setMinimumSize(new Dimension(800, 500));
+		open.setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
+		open.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		*/
+		newFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		newFrame.add(new Draw().Price_Chart());
+		newFrame.pack();
+		newFrame.setVisible(true);
+	}
+	
+}

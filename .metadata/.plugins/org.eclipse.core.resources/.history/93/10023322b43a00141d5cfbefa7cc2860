@@ -1,0 +1,16 @@
+import java.awt.event.*;
+import javax.swing.*;
+import java.awt.*;
+
+public class Backtester{
+
+	public static void main(String[] args) {
+		Screen NS=new Screen();
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+	    NS.setBounds(0,0,screenSize.width, screenSize.height);
+	    NS.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		NS.setVisible(true);
+	}
+	
+	
+}

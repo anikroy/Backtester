@@ -1,0 +1,18 @@
+import javax.swing.*;
+
+import java.awt.event.*;
+import java.awt.*;
+
+public class Screen extends JFrame{
+	private JPanel panel=new JPanel();
+	
+	public Screen(){
+		super("first");
+		panel.add((new Draw()).Price_Chart(), BorderLayout.NORTH,-1);
+		panel.setBackground(Color.black);
+		panel.setLayout(new FlowLayout());
+		
+		this.setContentPane(panel);
+	}
+
+}

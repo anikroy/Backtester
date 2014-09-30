@@ -1,0 +1,15 @@
+import java.awt.event.*;
+import javax.swing.*;
+import java.awt.*;
+
+public class Backtester{
+
+	public static void main(String[] args) {
+		Screen NS=new Screen();
+		NS.setExtendedState(JFrame.MAXIMIZED_BOTH);
+		NS.setMinimumSize(new Dimension(1000, 600));
+		NS.setVisible(true);
+	}
+	
+	
+}

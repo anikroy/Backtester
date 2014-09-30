@@ -1,0 +1,26 @@
+import java.awt.Dimension;
+import java.awt.GridLayout;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+
+
+public class Backtester {
+
+	public static void main(String[] args) {
+		Screen open=new Screen();
+		
+		open.setVisible(true);
+        open.setMinimumSize(new Dimension(800, 500));
+		open.setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
+		open.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        open.getContentPane().add((new Draw()).Price_Chart()).setMinimumSize(new Dimension(600,400));
+		
+		/*Draw chart=new Draw();
+		chart.Price_Chart();*/
+		
+	}
+	
+}

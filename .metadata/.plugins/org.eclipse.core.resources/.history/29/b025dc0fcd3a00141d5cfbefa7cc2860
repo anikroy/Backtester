@@ -1,0 +1,14 @@
+import java.awt.event.*;
+
+import javax.swing.*;
+
+import java.awt.*;
+
+public class Screen extends JFrame{
+	public Screen(){
+		super("backtester");
+		JPanel contentPanel = new JPanel();
+		contentPanel.setBackground(Color.BLACK);
+		this.setContentPane(contentPanel);
+	}
+}
