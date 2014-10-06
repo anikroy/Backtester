@@ -1,0 +1,54 @@
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridLayout;
+
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+
+import org.jfree.chart.ChartPanel;
+
+public class Logs {
+	private static JPanel panel=new JPanel();
+	private static JTextArea logsTXT=new JTextArea(),
+							 riskTXT=new JTextArea();
+	
+	private static JScrollPane logs=new JScrollPane(logsTXT), 
+							   risk=new JScrollPane(riskTXT);
+	
+	public Component Trade_Log(){
+		panel.setBackground(Color.black);
+		panel.setLayout(new GridLayout(1,0));
+		
+		logsTXT.setEditable(false);
+		logsTXT.setBackground(Color.BLACK);
+		logsTXT.setFont(new Font("Arial", 0, 13));
+		logsTXT.append("Ticker     Opt     Date        Ex Date       "
+				   	 + "Price(per)      Ex.Price(per)      Position       "
+				   	 + "Profit       %Return");
+		
+		riskTXT.setEditable(false);
+		riskTXT.setBackground(Color.BLACK);
+		riskTXT.setFont(new Font("Arial", 0, 13));
+		riskTXT.append("Ticker     Opt     Date        Ex Date       "
+				   	 + "Price(per)      Ex.Price(per)      Position       "
+				   	 + "Profit       %Return");
+	    
+		
+		
+	    
+	    panel.add(logs, BorderLayout.PAGE_START); 
+	    panel.add(risk, BorderLayout.EAST); 
+	    
+	    return panel;		
+	}
+
+}

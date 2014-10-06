@@ -1,0 +1,60 @@
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridLayout;
+
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+
+import org.jfree.chart.ChartPanel;
+
+public class Logs {
+	private JPanel panel=new JPanel();
+	
+	public Component Trade_Log(){
+		panel.setBackground(Color.black);
+		panel.setLayout(new GridLayout(1,0));
+		JTextArea log=new JTextArea(); JTextArea log2=new JTextArea();
+		log.setBackground(Color.BLACK);
+		log.append("Ticker     Opt     Date        Ex Date       "
+				   					   + "Price(per)      Ex.Price(per)      Position       "
+				   					   + "Profit       %Return");
+		log2.setBackground(Color.BLACK);
+		log2.append("Ticker     Opt     Date        Ex Date       "
+				   					   + "Price(per)      Ex.Price(per)      Position       "
+				   					   + "Profit       %Return");
+		/*JTextField logs = new JTextField("Ticker     Opt     Date        Ex Date       "
+				   					   + "Price(per)      Ex.Price(per)      Position       "
+				   					   + "Profit       %Return");
+		
+		
+		JTextField logs2 = new JTextField("Ticker     Opt     Date        Ex Date       "
+				   + "Price(per)      Ex.Price(per)      Position       "
+				   + "Profit       %Return");
+		
+	    logs.setFont(new Font("Arial", 0, 10));
+	    logs.setBackground(Color.BLACK);
+	    logs.setAutoscrolls(true);
+	    */
+	    JScrollPane log1 = new JScrollPane(log);
+	    JScrollPane log3 = new JScrollPane(log2);
+	    
+	    log2.setFont(new Font("Arial", 0, 10));
+	    log2.setBackground(Color.BLACK);
+	    log2.setAutoscrolls(true);
+	    
+	    panel.add(log1, BorderLayout.PAGE_START); 
+	    panel.add(log3, BorderLayout.EAST); 
+	    
+	    return panel;		
+	}
+
+}

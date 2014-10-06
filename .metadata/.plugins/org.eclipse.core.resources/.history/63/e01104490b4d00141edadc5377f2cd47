@@ -1,0 +1,52 @@
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridLayout;
+
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+
+import org.jfree.chart.ChartPanel;
+
+public class Logs {
+	private JPanel panel=new JPanel();
+	
+	public Component Trade_Log(){
+		panel.setBackground(Color.black);
+		panel.setLayout(new GridLayout(1,0));
+		
+		JTextField logs = new JTextField("Ticker     Opt     Date        Ex Date       "
+				   					   + "Price(per)      Ex.Price(per)      Position       "
+				   					   + "Profit       %Return");
+		
+		
+		JTextField logs2 = new JTextField("Ticker     Opt     Date        Ex Date       "
+				   + "Price(per)      Ex.Price(per)      Position       "
+				   + "Profit       %Return");
+	    logs.setFont(new Font("Arial", 0, 10));
+	    //logs.setMaximumSize(new Dimension(Integer.MAX_VALUE,Integer.MAX_VALUE));
+	    logs.setBackground(Color.black);
+	    logs.setAutoscrolls(true);
+	    /*
+	    panel.add(new JLabel("Ticker     Opt     Date        Ex Date      "
+	    				   + "Price(per)     Ex.Price(per)     Position      "
+	    				   + "Profit      %Return"));
+	    
+	    panel.add(new JLabel("Ticker     Opt     Date        Ex Date      "
+				   + "Price(per)     Ex.Price(per)     Position      "
+				   + "Profit      %Return"));
+		*/
+	    
+	    panel.add(logs.setSize(300, 300);, BorderLayout.WEST); panel.add(logs2, BorderLayout.EAST); 
+	    
+	    return panel;		
+	}
+
+}

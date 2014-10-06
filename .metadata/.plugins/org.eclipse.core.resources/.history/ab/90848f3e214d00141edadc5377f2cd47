@@ -1,0 +1,42 @@
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
+
+public class Backtester {
+	public static Draw charts=new Draw();
+	public static Logs log=   new Logs();
+	
+	public static JFrame mainFrame=new JFrame();
+	public static JPanel chart=    (JPanel) charts.Price_Chart(),
+						 logs=     (JPanel) log.Trade_Log();
+
+	public static void main(String[] args) {
+		chart.setBackground(Color.BLACK);
+		
+		mainFrame.getContentPane().add(logs);
+		mainFrame.getContentPane().add(chart);
+		mainFrame.setLayout(new GridLayout(2,1));
+		mainFrame.setMinimumSize(new Dimension(800, 500));
+		mainFrame.getContentPane().setBackground(Color.BLACK);
+		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		mainFrame.setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
+		
+		
+		
+		
+		
+		
+		mainFrame.pack();
+		mainFrame.setVisible(true);
+		
+		for(int i=0; i<30; i++)
+			log.update(Integer.toString(i));
+		
+		mainFrame.repaint();
+	}
+	
+}
