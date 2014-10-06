@@ -1,9 +1,0 @@
-
-public class Backtester {
-
-	public static void main(String[] args) {
-		Screen open=new Screen();
-		open.setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
-	}
-
-}

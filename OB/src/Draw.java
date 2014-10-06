@@ -1,6 +1,7 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.GridLayout;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -11,7 +12,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.StringTokenizer;
 
-import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
 import org.jfree.chart.ChartFactory;
@@ -83,7 +83,7 @@ public class Draw{
 		((NumberAxis)plot.getRangeAxis()).setAutoRangeIncludesZero(false);
 		((DateAxis)plot.getDomainAxis()).setTimeline(SegmentedTimeline.newMondayThroughFridayTimeline());
 		((CandlestickRenderer)plot.getRenderer()).setDrawVolume(true);
-		
+		Candle.setLayout(new GridLayout(1,0));
 		Candle.add(new ChartPanel(chart), BorderLayout.WEST);
 		Candle.add(new ChartPanel(chart), BorderLayout.EAST);
 		
