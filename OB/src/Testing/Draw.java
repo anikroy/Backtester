@@ -17,7 +17,9 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.StringTokenizer;
+
 import javax.swing.JPanel;
+
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -31,53 +33,67 @@ import org.jfree.data.xy.OHLCDataItem;
 import org.jfree.data.xy.OHLCDataset;
 import org.jquantlib.exercise.EuropeanExercise;
 
-public class Draw extends Portfolio{  
-	private JPanel Candle=new JPanel();
+public class Draw extends optionsData{  
+	private static JPanel Candle=new JPanel();
+	private static SimpleDateFormat df= new SimpleDateFormat("MM/dd/yyyy HH:mm:ss",Locale.ENGLISH);
+	private static ArrayList        dataItemsO = new ArrayList(),
+								    dataItemsU = new ArrayList();
 	
     public Draw(){
         super();
     }
     
     //String[] gData = {date,open, high, low, adjClose, volume}
-    public Component Price_Chart(String symbol) throws ParseException{
+    public static void Price_Chart(String symbol, String underlying) throws ParseException{
         JFreeChart OptChart = Chart(symbol, "O"), 
-        		   PChart   = Chart(symbol, "E");
-        
-        Candle.setLayout(new GridLayout(1,0));
+        		   PChart   = Chart(underlying, "E");
+        Candle.removeAll();
+        if(!Backtester.init){Candle.setLayout(new GridLayout(1,0));}
         Candle.add(new ChartPanel(OptChart), BorderLayout.WEST);
         Candle.add(new ChartPanel(PChart), BorderLayout.EAST);
-
-        return Candle;
+        Backtester.chart = Candle;
+        try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
     
-    private JFreeChart Chart(String symbol, String dType) throws ParseException{
-    	ArrayList dataItems = new ArrayList();
-        SimpleDateFormat df= new SimpleDateFormat("MM/dd/yyyy HH:mm:ss",Locale.ENGLISH);
-        
-        for(String[] values : (dType.equals("O") ? OptionsData.get(symbol) : EquityData.get("APL"))){
-            //date,open, high, low, adjClose, volume
-            double open = Double.parseDouble(values[1]),
-                   high = Double.parseDouble(values[2]),
-                   low = Double.parseDouble(values[3]),
-                   adjClose = Double.parseDouble(values[4]),
-                   volume = Double.parseDouble(values[5]);
-
-                   Date date = df.parse(values[0]);
-            OHLCDataItem item = new OHLCDataItem(date, open, high, low, adjClose, volume);
-            dataItems.add(item);
-        }
-        
-        Collections.reverse(dataItems);
-        OHLCDataItem[] data = (OHLCDataItem[]) dataItems.toArray(new OHLCDataItem[dataItems.size()]);
+    private static JFreeChart Chart(String symbol, String dType) throws ParseException{
+	    String[] values = dType.equals("O") ? OptionsData.get(symbol).get(OptionsData.get(symbol).size()-1) : EquityData.get(symbol).get(EquityData.get(symbol).size()-1);
+	    //date, open, high, low, adjClose, volume
+	    double open = Double.parseDouble(values[1]),
+	           high = Double.parseDouble(values[2]),
+	           low = Double.parseDouble(values[3]),
+	           adjClose = Double.parseDouble(values[4]),
+	           volume = Double.parseDouble(values[5]);
+	
+	    if (dType.equals("O")){
+	    	Date date = df.parse(values[0]);
+		    OHLCDataItem item = new OHLCDataItem(date, open, high, low, adjClose, volume);
+	    	dataItemsO.add(item); return update(dType);
+	    }else {
+	    	Date date = df.parse(values[0].substring(0, 4)+"/"+
+				 			     values[0].substring(4, 6)+"/"+
+							     values[0].substring(6, 8)+" "+ values[0].substring(8, values[0].length()));
+		    OHLCDataItem item = new OHLCDataItem(date, open, high, low, adjClose, volume);
+	    	dataItemsU.add(item); return update(dType);
+	    }
+    }
+    
+    private static JFreeChart update(String dType) throws ParseException{    
+    	
+        Collections.reverse(dType.equals("O") ? dataItemsO : dataItemsU);
+        OHLCDataItem[] data = (OHLCDataItem[]) (dType.equals("O") ? dataItemsO : dataItemsU).toArray(new OHLCDataItem[(dType.equals("O") ? dataItemsO : dataItemsU).size()]);
         OHLCDataset dataset = new DefaultOHLCDataset("MSFT", data);
-
+        
         JFreeChart chart=ChartFactory.createCandlestickChart("MSFT", "Time", "Price", dataset, false);
         chart.setBackgroundPaint(Color.black);
         chart.setBorderPaint(Color.green);
         chart.setBorderVisible(true);
         
         XYPlot plot=(XYPlot)chart.getPlot();
-
         plot.setBackgroundPaint(Color.black);
         plot.setDomainGridlinesVisible(true);
         plot.setDomainGridlinePaint(Color.CYAN);
@@ -86,6 +102,6 @@ public class Draw extends Portfolio{
         ((NumberAxis)plot.getRangeAxis()).setAutoRangeIncludesZero(false);
         ((DateAxis)plot.getDomainAxis()).setTimeline(SegmentedTimeline.newMondayThroughFridayTimeline());
         ((CandlestickRenderer)plot.getRenderer()).setDrawVolume(true);
-		return chart;
+        return chart;
     }
 }

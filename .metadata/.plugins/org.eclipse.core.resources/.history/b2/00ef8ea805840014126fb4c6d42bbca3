@@ -1,0 +1,209 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Testing;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Locale;
+import java.util.StringTokenizer;
+
+import javax.swing.JPanel;
+
+import org.jfree.data.xy.OHLCDataItem;
+import org.jquantlib.exercise.EuropeanExercise;
+
+
+/**
+ *
+ * @author ds
+ */
+
+public class optionsData extends Portfolio {         //0   1     2     3     4        5
+        //[AAPLM1715100][0][date,open, high, low, adjClose, volume];
+	final static String fileEqt = "C:/Users/Admin/Desktop/Backtester/cta_20131001_equity_quotes_taq/cta_20131001_equity_quotes_taq.txt",
+						fileOpt = "C:/Users/Admin/Desktop/Backtester/opra_20130301_bar05/opra_20130301_bar05.txt";
+	
+    public static LinkedHashMap<String, ArrayList<String[]>> OptionsData = new LinkedHashMap(),
+    														 EquityData = new LinkedHashMap();
+    protected static ArrayList dataItemsO = new ArrayList(),
+    				  		   dataItemsU = new ArrayList();
+    
+    private static HashMap dateRef = new HashMap();
+    private static BufferedReader OptData, EqtData;
+    
+    protected static boolean init = false;
+    
+    final static int lines    = 79,
+    				 numOfPts = 79;
+    
+    private static int countO  = 0,
+    				   countU  = 0,
+    				   oldLenO = 0,
+    				   oldLenE = 0;
+    //bid,ask,strike,maturity
+        
+	/**
+	 * @param args
+	 */
+        
+    public static void setDates(){
+        dateRef.put("A", "01");
+        dateRef.put("M", "01");
+        dateRef.put("B", "02");
+        dateRef.put("N", "02");
+        dateRef.put("C", "03");
+        dateRef.put("O", "03");
+        dateRef.put("D", "04");
+        dateRef.put("P", "04");
+        dateRef.put("E", "05");
+        dateRef.put("Q", "05");
+        dateRef.put("F", "06");
+        dateRef.put("R", "06");
+        dateRef.put("G", "07");
+        dateRef.put("S", "07");
+        dateRef.put("H", "08");
+        dateRef.put("T", "08");
+        dateRef.put("I", "09");
+        dateRef.put("U", "09");
+        dateRef.put("J", "10");
+        dateRef.put("V", "10");
+        dateRef.put("K", "11");
+        dateRef.put("W", "11");
+        dateRef.put("L", "12");
+        dateRef.put("X", "12");
+    }
+    
+    public static void runBackTest(String OptTicker, String EqtTicker) throws IOException, ParseException{
+    	setDates();
+    	OptData = new BufferedReader(new FileReader(fileOpt));
+    	EqtData = new BufferedReader(new FileReader(fileEqt));
+    	
+    	while(oldLenO<numOfPts && oldLenE<numOfPts){
+	    	fillOptData(OptTicker); fillUnderData(EqtTicker);
+	    	if(OptionsData.size()>0 && EquityData.size()>0){
+	    		if(OptionsData.get(OptTicker).size()>oldLenO){
+	    			try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+		    		oldLenO++; draw();
+		    	}else if(EquityData.get(EqtTicker).size()>oldLenE){
+		    		try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+		    		oldLenE++; draw();
+		    	}
+	    	}
+    	}	
+    	
+    	OptData.close(); EqtData.close();
+	    System.out.println("The data processing is done");
+	    	
+    }
+    
+    private static void fillOptData(String ticker) throws IOException, ParseException{
+        String[] values = OptData.readLine().split(",");
+        String symbol = values[1]+values[4]+values[5]+values[6]+values[7];
+        if(ticker.equals(symbol)){
+            countO ++;
+            System.out.println(OptionsData.size() + " " + EquityData.size() + " " + dataItemsO.size() + " " + dataItemsU.size());
+            String date = (values[0]+ " " + values[8]);
+               
+            String open = values[25],
+                   high = values[26],
+                   low = values[27],
+                   volume = values[30],
+                   adjClose = values[28];
+            
+            String[] gData = {date,open, high, low, adjClose, volume};
+
+            if(OptionsData.containsKey(symbol)){
+                ArrayList<String[]> temp = OptionsData.get(symbol);
+                temp.add(gData);
+                OptionsData.remove(symbol);
+                OptionsData.put(symbol,temp);
+            }else{
+                ArrayList<String[]> temp = new ArrayList();
+                temp.add(gData);
+                OptionsData.put(symbol, temp);
+            }
+
+            double strike = Double.parseDouble(values[7]);
+            
+            SimpleDateFormat df2= new SimpleDateFormat("MM/dd/yy",Locale.ENGLISH);
+            //System.out.println(values[4] + " " + dateRef.get(values[4]));
+            java.util.Date maturity = df2.parse(dateRef.get(values[4])+ "/" +values[5]+"/"+values[6]);
+            
+            //String type,String underline,double strike, java.uti.date Date
+            Instrument currentOption = new Instrument("option",values[1],strike,maturity);
+            PricingData.put(symbol, currentOption);
+        }
+    }
+    
+    private static void fillUnderData(String ticker) throws IOException, ParseException{
+        String[] values  = EqtData.readLine().split(","); 
+        if(ticker.equals(values[0])){
+        	countU ++;
+            String symbol = values[0], 
+            	   date = (values[1]+ " " + values[2]),
+            	   open = values[3],
+                   high = values[3],
+                   low = values[3],
+                   close = values[3],
+                   volume = Integer.toString(Integer.parseInt(values[5])), // + Integer.parseInt(values[6])),
+                   adjClose = values[3];
+            
+            String[] gData = {date, open, high, low, adjClose, volume};
+            if((countU+1)%lines != 0){
+		        if(EquityData.containsKey(symbol)){
+		            ArrayList<String[]> temp = EquityData.get(symbol);
+		            temp.add(gData);
+		            EquityData.remove(symbol);
+		            EquityData.put(symbol,temp);
+		        }else{
+		            ArrayList<String[]> temp = new ArrayList();
+		            temp.add(gData);
+		            EquityData.put(symbol, temp);
+		        }
+            }
+        }
+    }
+    
+    private static void draw() throws ParseException{
+	    if((countO+1)%lines != 0){
+	    	if(Backtester.chart==null && OptionsData.size()>0 && EquityData.size()>0 && !init) {
+	    		Draw.Price_Chart("AAPLD0513430.00");
+	        	Backtester.logs = (JPanel) Backtester.log.Trade_Log();
+	    		Backtester.initMainFrame();
+	    		init=true;
+	    	}
+	    	else if(init){
+	    		
+            	Draw.Price_Chart("AAPLD0513430.00");
+            	Backtester.mainFrame.repaint();
+	    	}
+		} 
+    }
+}

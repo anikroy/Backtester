@@ -8,7 +8,6 @@ package Testing;
 import java.io.BufferedReader;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-
 import org.jquantlib.QL;
 import org.jquantlib.Settings;
 import org.jquantlib.daycounters.Actual365Fixed;
@@ -53,7 +52,6 @@ import org.jquantlib.time.Period;
 import org.jquantlib.time.TimeUnit;
 import org.jquantlib.time.calendars.Target;
 import Testing.Instrument; 
-import static java.lang.Math.abs;
 /**
  *
  * @author ds
@@ -61,32 +59,22 @@ import static java.lang.Math.abs;
 public class Portfolio{
 	private double PortfolioPnL = 0;
 	//holds the positions [bid , ask, amount] 
-        
 	public LinkedHashMap<String, double[]> positions = new LinkedHashMap<String, double[]>();
-	public static LinkedHashMap<String, LinkedHashMap<java.util.Date, Double>> spotData = new LinkedHashMap();
-        //[AAPLM1715100][0][date,open, high, low, adjClose, volume]
-        public static LinkedHashMap<String, ArrayList<String[]>> GraphingData = new LinkedHashMap();
-        
-        //in instrument: String type,String underline,double strike, java.uti.date Date
-        public static LinkedHashMap<String, Instrument> pricingData = new LinkedHashMap();
-	
-	
-        //holds the data for all the securities [bid, ask, strike, time]
+	    
+    //in instrument: String type,String underline,double strike, java.uti.date Date
+    public static LinkedHashMap<String, Instrument> PricingData = new LinkedHashMap();
+
+    //holds the data for all the securities [bid, ask, strike, time]
 	public LinkedHashMap<String,double[]> Data = new LinkedHashMap<String, double[]>(); 
 	//private HashMap<String,double[]> Data = new HashMap<String, double[]>(); 
 	
-        
-	//initialize vol
-	private double volGuess = 0.2;
-	
-	
-	
-        final Calendar calendar = new Target();
-        final Date todaysDate = new Date(01, Month.March, 2013);
-	final Date settlementDate = new Date(03, Month.March, 2013);
-        /*@Rate*/final double riskFreeRate = 0.02037;
-        final DayCounter dayCounter = new Actual365Fixed();
-         
+	final static Date todaysDate = new Date(01, Month.March, 2013);
+	final static Date settlementDate = new Date(03, Month.March, 2013);
+    final static DayCounter dayCounter = new Actual365Fixed();
+    final static Calendar calendar = new Target();
+    final static double riskFreeRate = 0.02037;
+    private double volGuess = 0.2;  	
+	   
 	//values [bid,ask, amount]
 	public Portfolio(){}
 	
@@ -116,106 +104,112 @@ public class Portfolio{
 		Data.put(ticker, values);
 	}
         
-        public static java.util.Date getNearestDate(String ticker, java.util.Date currentDate) {
-            long minDiff = -1, currentTime = currentDate.getTime();
-            java.util.Date minDate = null;
-            for (java.util.Date date : spotData.get(ticker).keySet()) {
-              long diff = Math.abs(currentTime - date.getTime());
-              if ((minDiff == -1) || (diff < minDiff)) {
-                minDiff = diff;
-                minDate = date;
-              }
-            }
-            return minDate;
+    public static java.util.Date getNearestDate(String ticker, java.util.Date currentDate) {
+        long minDiff = -1, currentTime = currentDate.getTime();
+        java.util.Date minDate = null;
+        for (java.util.Date date : optionsData.spotData.get(ticker).keySet()) {
+          long diff = Math.abs(currentTime - date.getTime());
+          if ((minDiff == -1) || (diff < minDiff)) {
+            minDiff = diff;
+            minDate = date;
+          }
         }
-
-
-public VanillaOption Contract(String ticker){
-       
-                
-    Instrument cOption = pricingData.get(ticker);
-    new Settings().setEvaluationDate(todaysDate);
-    java.util.Date lastPriced = cOption.lastPriced();
-
-    double spotPrice = spotData.get(cOption.getSpotName()).get(getNearestDate(cOption.getSpotName(),lastPriced));
-    final double dividendYield = 0;
-
-
-    
-    final Handle<YieldTermStructure> flatDividendTS = new Handle<YieldTermStructure>(new FlatForward(settlementDate, dividendYield, dayCounter));
-    final Handle<YieldTermStructure> flatTermStructure = new Handle<YieldTermStructure>(new FlatForward(settlementDate, riskFreeRate, dayCounter));
-    final Handle<BlackVolTermStructure> flatVolTS = new Handle<BlackVolTermStructure>(new BlackConstantVol(settlementDate, calendar, IV(ticker), dayCounter));
-
-    Option.Type type = cOption.getType();
-
-    
-    final Exercise americanExercise = new AmericanExercise(settlementDate, cOption.getMaturity());
-    
-    Handle<Quote> underlyingH = new Handle<Quote>(new SimpleQuote(spotPrice));
-    
-    
-    System.out.println("the strike is:" + cOption.getStrike());
-    System.out.println("the spot is: " +spotPrice);
-     final Payoff payoff = new PlainVanillaPayoff(type, cOption.getStrike());
-
-    BlackScholesMertonProcess bsmProcess = new BlackScholesMertonProcess(underlyingH, flatDividendTS, flatTermStructure, flatVolTS);
-    VanillaOption americanOption = new VanillaOption(payoff, americanExercise);
-    americanOption.setPricingEngine(new BjerksundStenslandApproximationEngine(bsmProcess));
-    return americanOption;         
+        return minDate;
     }
 
-public VanillaOption IVDummy(String ticker,double volGuess1){
-       
-                
-    Instrument cOption = pricingData.get(ticker);
-    new Settings().setEvaluationDate(todaysDate);
-    java.util.Date lastPriced = cOption.lastPriced();
+	public static VanillaOption Contract(String ticker){
+	       
+	                
+	    Instrument cOption = PricingData.get(ticker);
+	    new Settings().setEvaluationDate(todaysDate);
+	    java.util.Date lastPriced = cOption.lastPriced();
+	
+	    double spotPrice = optionsData.spotData.get(cOption.getSpotName()).get(getNearestDate(cOption.getSpotName(),lastPriced));
+	    final double dividendYield = 0;
+	
+	
+	    
+	    final Handle<YieldTermStructure> flatDividendTS = new Handle<YieldTermStructure>(new FlatForward(settlementDate, dividendYield, dayCounter));
+	    final Handle<YieldTermStructure> flatTermStructure = new Handle<YieldTermStructure>(new FlatForward(settlementDate, riskFreeRate, dayCounter));
+	    final Handle<BlackVolTermStructure> flatVolTS = new Handle<BlackVolTermStructure>(new BlackConstantVol(settlementDate, calendar, IV(ticker), dayCounter));
+	
+	    Option.Type type = cOption.getType();
+	
+	    
+	    final Exercise americanExercise = new AmericanExercise(settlementDate, cOption.getMaturity());
+	    
+	    Handle<Quote> underlyingH = new Handle<Quote>(new SimpleQuote(spotPrice));
+	    
+	    
+	    System.out.println("the strike is:" + cOption.getStrike());
+	    System.out.println("the spot is: " +spotPrice);
+	     final Payoff payoff = new PlainVanillaPayoff(type, cOption.getStrike());
+	
+	    BlackScholesMertonProcess bsmProcess = new BlackScholesMertonProcess(underlyingH, flatDividendTS, flatTermStructure, flatVolTS);
+	    VanillaOption americanOption = new VanillaOption(payoff, americanExercise);
+	    americanOption.setPricingEngine(new BjerksundStenslandApproximationEngine(bsmProcess));
+	    return americanOption;         
+	    }
+	
+	public static VanillaOption IVDummy(String ticker,double volGuess1){
+	       
+	                
+	    Instrument cOption = PricingData.get(ticker);
+	    new Settings().setEvaluationDate(todaysDate);
+	    java.util.Date lastPriced = cOption.lastPriced();
+	
+	    double spotPrice = optionsData.spotData.get(cOption.getSpotName()).get(getNearestDate(cOption.getSpotName(),lastPriced));
+	    final double dividendYield = 0;
+	
+	
+	    
+	    final Handle<YieldTermStructure> flatDividendTS = new Handle<YieldTermStructure>(new FlatForward(settlementDate, dividendYield, dayCounter));
+	    final Handle<YieldTermStructure> flatTermStructure = new Handle<YieldTermStructure>(new FlatForward(settlementDate, riskFreeRate, dayCounter));
+	    final Handle<BlackVolTermStructure> flatVolTS = new Handle<BlackVolTermStructure>(new BlackConstantVol(settlementDate, calendar, volGuess1, dayCounter));
+	
+	    Option.Type type = cOption.getType();
+	    
+	    final Exercise americanExercise = new AmericanExercise(settlementDate, cOption.getMaturity());
+	    
+	    Handle<Quote> underlyingH = new Handle<Quote>(new SimpleQuote(spotPrice));
+	    
+	    
+	    System.out.println("the strike is:" + cOption.getStrike());
+	    System.out.println("the spot is: " +spotPrice);
+	     final Payoff payoff = new PlainVanillaPayoff(type, cOption.getStrike());
+	
+	    BlackScholesMertonProcess bsmProcess = new BlackScholesMertonProcess(underlyingH, flatDividendTS, flatTermStructure, flatVolTS);
+	    VanillaOption americanOption = new VanillaOption(payoff, americanExercise);
+	    americanOption.setPricingEngine(new BjerksundStenslandApproximationEngine(bsmProcess));
+	    return americanOption;         
+	    }
+	
 
-    double spotPrice = spotData.get(cOption.getSpotName()).get(getNearestDate(cOption.getSpotName(),lastPriced));
-    final double dividendYield = 0;
-
-
-    
-    final Handle<YieldTermStructure> flatDividendTS = new Handle<YieldTermStructure>(new FlatForward(settlementDate, dividendYield, dayCounter));
-    final Handle<YieldTermStructure> flatTermStructure = new Handle<YieldTermStructure>(new FlatForward(settlementDate, riskFreeRate, dayCounter));
-    final Handle<BlackVolTermStructure> flatVolTS = new Handle<BlackVolTermStructure>(new BlackConstantVol(settlementDate, calendar, volGuess1, dayCounter));
-
-    Option.Type type = cOption.getType();
-
-    
-    final Exercise americanExercise = new AmericanExercise(settlementDate, cOption.getMaturity());
-    
-    Handle<Quote> underlyingH = new Handle<Quote>(new SimpleQuote(spotPrice));
-    
-    
-    System.out.println("the strike is:" + cOption.getStrike());
-    System.out.println("the spot is: " +spotPrice);
-     final Payoff payoff = new PlainVanillaPayoff(type, cOption.getStrike());
-
-    BlackScholesMertonProcess bsmProcess = new BlackScholesMertonProcess(underlyingH, flatDividendTS, flatTermStructure, flatVolTS);
-    VanillaOption americanOption = new VanillaOption(payoff, americanExercise);
-    americanOption.setPricingEngine(new BjerksundStenslandApproximationEngine(bsmProcess));
-    return americanOption;         
-    }
-
-
-    public double IV(String ticker){
+    public static double IV(String ticker){
         double error = 0.001;
         double Yi = 0;
         double P = 1;
         double Vega = 2;
         double volatility = 0.2;
         
-        Instrument cOption = pricingData.get(ticker);
+        Instrument cOption = PricingData.get(ticker);
         P = cOption.getLastPrice();
-        
-        while(abs(Yi - P) > error){
-            
-            VanillaOption test = IVDummy(ticker,volatility);
-            Yi = test.NPV();
-            
-            Vega = test.vega();
-            volatility = volatility - ((Yi - P)/Vega);
+        System.out.println(ticker+" "+volatility);
+        while(Math.abs(Yi - P) > error){
+        	try{
+        		VanillaOption test = IVDummy(ticker,volatility);
+                Yi = test.NPV();
+                
+                Vega = test.vega();
+                volatility = volatility - ((Yi - P)/Vega);
+        	}catch(Exception e){
+        		volatility = 0.2;
+        		VanillaOption test = IVDummy(ticker,volatility);
+                Yi = test.NPV();
+                
+                Vega = test.vega();
+                volatility = volatility - ((Yi - P)/Vega);
+        	}
         }
         
         return volatility;
@@ -224,7 +218,7 @@ public VanillaOption IVDummy(String ticker,double volGuess1){
 	public double PortfolioDelta(){
 		double pdelta = 0;
 		for(String ticker: positions.keySet()){
-			Instrument details = pricingData.get(ticker);
+			Instrument details = PricingData.get(ticker);
 			if(details.isOption())
 				pdelta += Contract(ticker).delta() * positions.get(ticker)[1];
 			else pdelta += positions.get(ticker)[1];
@@ -235,7 +229,7 @@ public VanillaOption IVDummy(String ticker,double volGuess1){
 	public double PortfolioGamma(){
 		double pgamma = 0; 
 		for(String ticker: positions.keySet()){
-			Instrument details = pricingData.get(ticker);
+			Instrument details = PricingData.get(ticker);
 			if(details.isOption())
 				pgamma += Contract(ticker).gamma() * positions.get(ticker)[1];
 		}
@@ -245,14 +239,13 @@ public VanillaOption IVDummy(String ticker,double volGuess1){
 	public double PortfolioVega(){
 		double pvega = 0;
 		for(String ticker: positions.keySet()){
-			Instrument details = pricingData.get(ticker);
+			Instrument details = PricingData.get(ticker);
 			if(details.isOption())
 				pvega += Contract(ticker).vega() * positions.get(ticker)[1];
 		}
 		return pvega; 
 	}
 	
-
 	public double PositionPnL(String ticker){
 		if(positions.containsKey(ticker)){
 			int amount = (int)positions.get(ticker)[1];
@@ -356,10 +349,9 @@ public VanillaOption IVDummy(String ticker,double volGuess1){
 		else return 0;
 	}
 	
-
 	public double getPnL(){return PortfolioPnL;}
 	
-        public void LiquidatePositions(){
+    public void LiquidatePositions(){
 		PortfolioPnL = Pnl();
 	}
 	
@@ -415,4 +407,3 @@ public VanillaOption IVDummy(String ticker,double volGuess1){
 		return positions.size();
 	}
 }
-
